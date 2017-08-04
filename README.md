@@ -41,9 +41,9 @@ Private lessons have a duration and are allowed to be scheduled in multiple bloc
 
 ## Process Details
 1. Fork this repository and create a PR against it for your final work, so that we can review it.
-2. In your PR or in the code, please include some comments about why you did certain things. For example,
-  1. What drove you to create the classes you did (if any)?
-  2. How did you decide the behaviors of your objects?
-  3. If you employed a pattern of some type why drove you to that decision?
-  4. If you think you have an algorithm, or choice of data structure, that needs explanation please add some comments.
+2. In your PR or in the code, please include some comments about why you did certain things. For example...
+    1. What drove you to create the classes you did (if any)?
+    2. How did you decide the behaviors of your objects?
+    3. If you employed a software pattern what drove you to that decision?
+    4. If you think you have an algorithm or choice of data structure that needs explanation please add some comments.
 3. For the second part, please include instructions for running your script, especially if there are dependencies (e.g. `pip install ...`, `gem install ...`, `mvn ...`).

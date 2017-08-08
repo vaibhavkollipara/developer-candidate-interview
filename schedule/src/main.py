@@ -2,7 +2,7 @@ from util import *
 from abc import ABCMeta, abstractmethod
 
 
-class Instructor:
+class InstructorsAvailability:
 
     def __init__(self, name):
         self.name = name
@@ -24,17 +24,17 @@ class Availability:
         self.privateLessons = []
         self.groupLessons = []
 
-    def add_private_lesson(session):
+    def add_private_lesson(self, session):
         self.privateLessons.append(session)
 
-    def add_group_lesson(session):
+    def add_group_lesson(self, session):
         self.groupLessons.append(session)
 
 
 class Session(metaclass=ABCMeta):
 
     def __init__(self, maxParticipants, startDate, endDate, startTime, endTime, duration):
-        self.maxParticipants = maxParticipants
+        self.maxParticipants = int(maxParticipants)
         self.startDate = getDateFromString(startDate)
         self.endDate = getDateFromString(endDate)
         self.startTime = getTimeFromString(startTime)
@@ -43,15 +43,15 @@ class Session(metaclass=ABCMeta):
         self.duration = getDurationInMinutes(value, desc)
         self.no_of_slots_a_day = int(getTimeDifferenceInMinutes(self.startTime, self.endTime) / self.duration)
         self.slots = []
-        self.__createSlots()
+        self.createSlots()
 
-    def __createSlots(self):
-        total_days = (self.startDate - self.endDate).days
+    def createSlots(self):
+        total_days = (self.endDate - self.startDate).days
         for day in range(total_days + 1):
             dayDate = self.startDate + datetime.timedelta(days=day)
             startDateTime = datetime.datetime.combine(dayDate, self.startTime)
-            for _ in range(no_of_slots_a_day):
-                endDateTime = startDateTime + datetime.timedelta(minutes=duration)
+            for _ in range(self.no_of_slots_a_day):
+                endDateTime = startDateTime + datetime.timedelta(minutes=self.duration)
                 self.slots.append(Slot(startDateTime, endDateTime, self.maxParticipants))
                 startDateTime = endDateTime
 
@@ -87,7 +87,7 @@ class Slot:
         self.participants = []
 
     def __isFull():
-        return self.participants.length == self.maxParticipants
+        return len(self.participants) == self.maxParticipants
 
     def addParticipant(participant):
         if not self.__isFull():
@@ -95,9 +95,17 @@ class Slot:
         else:
             raise CustomException("Slot Full")
 
+    def __str__(self):
+        return "Slot : [{},{}]".format(self.startDateTime, self.endDateTime)
+
 
 class Participant:
     pass
+
+
+"""
+-----------Custom Expceptions------------
+"""
 
 
 class CustomException(Exception):

@@ -19,6 +19,8 @@ def getTimeDifferenceInMinutes(startTime, endTime):
 
 def getDurationInMinutes(value, desc):
     if desc == 'hour':
-        return float(int(value)) * 60
+        if value == '1/2':
+            return 0.5 * 60
+        return float(value) * 60
     elif desc == 'minutes':
-        return float(int(value))
+        return float(value)

@@ -51,9 +51,9 @@
 
 # Execution Instructions
 
-> cd schedule\src
-if python 3 is default version
-    > python test.py
-else
-    > python3 test.py
+* > cd schedule\src
+* if python 3 is default version
+    * > python test.py
+* else
+    * > python3 test.py
 

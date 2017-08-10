@@ -1,9 +1,15 @@
+__author__ = 'Vaibhav Kollipara'
+__doc__ = """
+Contains all classes required to store parsed data and has conflicts check functionality
+"""
+
 from util import *
+from abc import ABCMeta, abstractmethod
 
 
 class InstructorAvailability:
     """
-    Class to maintain Instructor Availability Information
+    Class to represent Instructor Availability Information
     """
 
     def __init__(self):
@@ -25,16 +31,58 @@ class InstructorAvailability:
         elif request.training_type == "Private Lesson":
             lessons = self.privateLessons
         for lesson in lessons:
-            if not lesson.hasTimeConflict(request.session) and not lesson.hasDurationConflict(request.duration):
+            if lesson.isAvailable(request.session) and lesson.isDurationMatching(request.duration):
                 if not lesson.isFull():
                     lesson.addParticipant()
                     return True
         return False
 
 
+class ParticipantAvailability:
+    """
+    Class to represent information reagarding student availability
+    """
+
+    def __init__(self):
+        # reservedSlots has information of time the student is already comitted to
+        self.reservedSlots = []
+
+    def hasConflict(self, requestSession):
+        # checks time conflict with reserved slots
+        for session in self.reservedSlots:
+            if not session.hasConflict(requestSession):
+                return True
+        return False
+
+    def addSession(self, requestSession):
+        # adds session to reserved slots
+        self.reservedSlots.append(requestSession)
+
+
+class Request():
+    """
+    Class to represent request information
+    """
+
+    def __init__(self, id, name, training_type, instructor, startDate, endDate, startTime, endTime):
+        self.id = id
+        self.name = name
+        self.training_type = training_type
+        self.instructor = instructor
+        # use same base Session which makes easy calculate conflicts
+        self.session = ParticipantSession(startDate, endDate, startTime, endTime)
+        self.duration = getTimeDifferenceInMinutes(self.session.startTime, self.session.endTime)
+
+    def __str__(self):
+        return "{} : {}".format(self.student, self.instructor)
+
+    def __repr__(self):
+        return "{} : {}".format(self.student, self.instructor)
+
+
 class Session():
     """
-        Class to maintain date and timings of session
+    Class to represent date and timings of Lesson
     """
 
     def __init__(self, startDate, endDate, startTime, endTime):
@@ -43,21 +91,41 @@ class Session():
         self.startTime = getTimeFromString(startTime)
         self.endTime = getTimeFromString(endTime)
 
-    def hasTimeConflict(self, requestSession):
-        # checks date time conflict with given session
-        pass
-        """
-            Todo
-        """
+    def __str__(self):
+        return "{} : {}".format(self.startDate, self.endDate)
 
-    def __str(self):
+    def __repr__(self):
         return "{} : {}".format(self.startDate, self.endDate)
 
 
-class InstuctorSession(Session):
+class ParticipantSession(Session):
     """
-        Extends from Session
-        Has an additional information about maxParticipants and duration
+    Class to represent Participant's registered lessons information
+    """
+
+    def __init__(self, startDate, endDate, startTime, endTime):
+        super().__init__(startDate, endDate, startTime, endTime)
+
+    def isDateConflicting(self, requestSession):
+        if (requestSession.endDate < self.startDate) or (requestSession.startDate > self.endDate):
+            return False
+
+        return True
+
+    def isTimeConflicting(self, requestSession):
+        if (requestSession.startTime < self.startTime) or (requestSession.endTime > self.endTime):
+            return False
+
+        return True
+
+    def hasConflict(self, requestSession):
+        # checks time confilict with existing request session
+        return self.isDateConflicting(requestSession) or self.isTimeConflicting(requestSession)
+
+
+class InstuctorSession(Session, metaclass=ABCMeta):
+    """
+    Extended Session to represent additional information about maxParticipants, duration etc
     """
 
     def __init__(self, maxParticipants, startDate, endDate, startTime, endTime, duration):
@@ -71,25 +139,29 @@ class InstuctorSession(Session):
         # checks whether maximum capacity is reached in session
         return self.participants_count == self.maxParticipants
 
-    def hasDurationConflict(self):
+    @abstractmethod
+    def isDurationMatching(self, requestDuration):
         pass
 
     def addParticipant(self):
         # add a new participant to session
         self.participants_count += 1
 
+    def isAvailable(self, requestSession):
+        return (requestSession.startDate >= self.startDate and requestSession.endDate <= self.endDate and requestSession.startTime >= self.startTime and requestSession.endTime <= self.endTime)
+
 
 class PrivateSession(InstuctorSession):
     """
-        Has own method for checking duration conflicts
+    Extended Instructor Session,
+    Has additional functionality to check matching duration for Private Lesson
     """
 
     def __init__(self, maxParticipants, startDate, endDate, startTime, endTime, duration):
         super().__init__(maxParticipants, startDate, endDate, startTime, endTime, duration)
 
-    def hasDurationConflict(self, requestDuration):
-        # checks duration conflict
-        return (requestDuration % self.duration) != 0
+    def isDurationMatching(self, requestDuration):
+        return requestDuration <= self.duration and int(self.duration % requestDuration) == 0
 
     def __str__(self):
         return "Private : [{} : {}]".format(self.startDate, self.endDate)
@@ -100,57 +172,18 @@ class PrivateSession(InstuctorSession):
 
 class GroupSession(InstuctorSession):
     """
-        Has own method for checking duration conflicts
+    Extended Instructor Session,
+    Hass additional functionality to check matching duration for Group Lesson
     """
 
     def __init__(self, maxParticipants, startDate, endDate, startTime, endTime, duration):
         super().__init__(maxParticipants, startDate, endDate, startTime, endTime, duration)
 
-    def hasDurationConflict(self, requestDuration):
-        # checks duration conflict
-        return requestDuration != self.duration
+    def isDurationMatching(self, requestDuration):
+        return self.duration == requestDuration
 
     def __str__(self):
         return "Group : [{} : {}]".format(self.startDate, self.endDate)
 
     def __repr__(self):
         return "Group : [{} : {}]".format(self.startDate, self.endDate)
-
-
-class ParticipantAvailability:
-    """
-        Class to maintain information reagarding student availability
-    """
-
-    def __init__(self):
-        # reservedSlots has information of time the student is already comitted to
-        self.reservedSlots = []
-
-    def hasConflict(self, requestSession):
-        # checks time conflict with reserved slots
-        for session in self.reservedSlots:
-            if session.hasTimeConflict(requestSession):
-                return True
-        return False
-
-    def addSession(self, session):
-        # adds session to reserved slots
-        self.reservedSlots.append(session)
-
-
-class Request():
-    """
-        Class to represent request information
-    """
-
-    def __init__(self, id, name, training_type, instructor, startDate, endDate, startTime, endTime):
-        self.id = id
-        self.name = name
-        self.training_type = training_type
-        self.instructor = instructor
-        # use same base Session which makes easy calculate conflicts
-        self.session = Session(startDate, endDate, startTime, endTime)
-        self.duration = getTimeDifferenceInMinutes(self.session.startTime, self.session.endTime)
-
-    def __str__(self):
-        return "{} : {}".format(self.student, self.instructor)

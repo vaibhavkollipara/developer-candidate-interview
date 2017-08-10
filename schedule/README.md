@@ -1,4 +1,4 @@
-# Algorithm Description
+### Algorithm Description
 
 <ul>
     <li>Initially parse data and store information in objects</li>
@@ -25,7 +25,7 @@
 
 </ul>
 
-# Development Environment
+### Development Environment
 
 <ul>
     <li>Operating System : Windows 10</li>
@@ -33,12 +33,12 @@
     <li>IDE : Sublime Text 3</li>
 </ul>
 
-# Requirements
+### Requirements
 <ul>
     <li>Python 3</li>
 </ul>
 
-# Folder Structure
+### Folder Structure
 
 * schedule
     * ---src
@@ -49,7 +49,7 @@
     * ---instructor_availability.csv
 
 
-# Execution Instructions
+### Execution Instructions
 
 * > cd schedule\src
 * if python 3 is default version

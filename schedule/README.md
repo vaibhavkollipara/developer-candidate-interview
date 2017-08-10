@@ -40,13 +40,13 @@
 
 # Folder Structure
 
-* schedule<br/>
-    *---src
-        *---main.py
-        *---test.py
-        *---util.py
-    + ---input.csv
-    + ---instructor_availability.csv
+* schedule
+    * ---src
+        * ---main.py
+        * ---test.py
+        * ---util.py
+    * ---input.csv
+    * ---instructor_availability.csv
 
 
 # Execution Instructions
